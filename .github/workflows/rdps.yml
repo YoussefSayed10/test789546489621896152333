@@ -1,0 +1,32 @@
+name: RDP via CRD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update system
+        run: |
+          sudo apt update && sudo apt upgrade -y
+
+      - name: Install XFCE desktop and CRD
+        run: |
+          sudo apt install -y xfce4 xfce4-goodies
+          echo "startxfce4" > ~/.chrome-remote-desktop-session
+          chmod +x ~/.chrome-remote-desktop-session
+          wget https://dl.google.com/linux/direct/chrome-remote-desktop_current_amd64.deb
+          sudo dpkg -i chrome-remote-desktop_current_amd64.deb || sudo apt -f install -y
+
+      - name: Install Google Chrome
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt -f install -y
+
+      - name: Start Chrome Remote Desktop (from secret)
+        run: |
+          echo "${{ secrets.CRD_CODE }}" > ~/crd.sh
+          chmod +x ~/crd.sh
+          bash ~/crd.sh
